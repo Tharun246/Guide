@@ -222,46 +222,8 @@ This acts like the database hostname.
 
 ---
 
-# PART 2 — Connect to RDS Using MySQL Workbench
 
-## Install MySQL Workbench
-
-Use:
-
-* MySQL Workbench
-* DBeaver
-* IntelliJ DB Tool
-
----
-
-# Connection Details
-
-| Field    | Value         |
-| -------- | ------------- |
-| Host     | RDS Endpoint  |
-| Port     | 3306          |
-| Username | admin         |
-| Password | your password |
-
----
-
-# Verify Database
-
-Run:
-
-```sql
-SHOW DATABASES;
-```
-
-You should see:
-
-```text
-SpringDb1
-```
-
----
-
-# PART 3 — Create Spring Boot Project
+# PART 2 — Create Spring Boot Project
 
 ## Dependencies
 
@@ -273,36 +235,12 @@ Use:
 
 ---
 
-# Maven Dependencies
-
-```xml
-<dependency>
-    <groupId>org.springframework.boot</groupId>
-    <artifactId>spring-boot-starter-web</artifactId>
-</dependency>
-
-<dependency>
-    <groupId>org.springframework.boot</groupId>
-    <artifactId>spring-boot-starter-data-jpa</artifactId>
-</dependency>
-
-<dependency>
-    <groupId>com.mysql</groupId>
-    <artifactId>mysql-connector-j</artifactId>
-</dependency>
-```
-
----
-
 # Configure application.properties
 
 ```properties
 spring.datasource.url=jdbc:mysql://springboot-rds-db1.abcdefg.ap-south-1.rds.amazonaws.com:3306/SpringDb1
 spring.datasource.username=admin
 spring.datasource.password=StrongPassword123
-
-spring.jpa.hibernate.ddl-auto=update
-spring.jpa.show-sql=true
 ```
 
 ---
@@ -329,71 +267,9 @@ Where:
 
 ---
 
-# PART 4 — Create Entity
+# PART 4 — Create Spring boot project
 
-## Employee Entity
-
-```java
-@Entity
-public class Employee {
-
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
-
-    private String name;
-
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-}
-```
-
----
-
-# Repository
-
-```java
-public interface EmployeeRepository
-        extends JpaRepository<Employee, Long> {
-}
-```
-
----
-
-# Controller
-
-```java
-@RestController
-@RequestMapping("/employees")
-public class EmployeeController {
-
-    @Autowired
-    private EmployeeRepository repository;
-
-    @PostMapping
-    public Employee save(@RequestBody Employee employee) {
-        return repository.save(employee);
-    }
-
-    @GetMapping
-    public List<Employee> getAll() {
-        return repository.findAll();
-    }
-}
-```
+Create a GET and POST endpoint to add or get the entity information
 
 ---
 
@@ -404,95 +280,10 @@ Run:
 ```bash
 mvn spring-boot:run
 ```
-
-OR run from IntelliJ.
-
----
-
-# What Happens Internally
-
-Spring Boot:
-
-1. Reads datasource URL
-2. Connects to RDS using JDBC
-3. Creates tables automatically
-4. Starts application
-
----
-
-# Hibernate Table Creation
-
-Because:
-
-```properties
-spring.jpa.hibernate.ddl-auto=update
-```
-
-Hibernate automatically creates tables.
-
-Example generated SQL:
-
-```sql
-CREATE TABLE employee (
-    id BIGINT AUTO_INCREMENT PRIMARY KEY,
-    name VARCHAR(255)
-);
-```
-
----
-
-# Verify Tables
-
-In MySQL Workbench:
-
-```text
-Schemas
-    -> SpringDb1
-        -> Tables
-            -> employee
-```
-
----
-
-# Insert Data
-
-POST Request:
-
-```http
-POST /employees
-```
-
-Body:
-
-```json
-{
-  "name": "Chris"
-}
-```
-
----
-
-# Fetch Data
-
-GET Request:
-
-```http
-GET /employees
-```
-
----
-
-# Verify Data in Database
-
-Run:
-
-```sql
-SELECT * FROM employee;
-```
-
 ---
 
 # PART 6 — Common Connection Errors
+Make POST and GET requests and check if we are able to fetch the records .
 
 # Error
 
@@ -544,82 +335,7 @@ Need:
 
 # PART 7 — Launch EC2 Instance
 
-## Step 1 — Open EC2 Console
-
-Search:
-
-```text
-EC2
-```
-
-Click:
-
-```text
-Launch Instance
-```
-
----
-
-# Step 2 — Choose AMI
-
-Use:
-
-```text
-Amazon Linux 2023
-```
-
----
-
-# Step 3 — Choose Instance Type
-
-```text
-t2.micro
-```
-
----
-
-# Step 4 — Create Key Pair
-
-Example:
-
-```text
-spring-key.pem
-```
-
-Download and save it.
-
----
-
-# Step 5 — Configure EC2 Security Group
-
-Inbound Rules:
-
-| Port | Source   |
-| ---- | -------- |
-| 22   | My IP    |
-| 8080 | Anywhere |
-
----
-
-# Step 6 — Launch Instance
-
-Wait until:
-
-```text
-Running
-```
-
----
-
-# PART 8 — Connect EC2 To RDS
-
-Now architecture becomes:
-
-```text
-EC2 -> RDS
-```
-
----
+## Cretae a EC2 instance with desired inbound and outbound rules 
 
 # Modify RDS Security Group
 
@@ -634,9 +350,6 @@ Meaning:
 ```text
 Only EC2 can access database.
 ```
-
-This is production-style setup.
-
 ---
 
 # PART 9 — SSH Into EC2
